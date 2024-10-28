@@ -50,7 +50,7 @@ const mock = [
 ];
 
 export default function TableReservationAdmin({
-   data = mock,
+   data = [],
    handleEdit = (rowId) => console.log(rowId),
    handleConfirm = (rowId) => console.log(rowId),
    handleCancel = (rowId) => console.log(rowId),
@@ -154,8 +154,8 @@ export default function TableReservationAdmin({
    });
 
    return (
-      <div className="overflow-x-auto">
-         <Table tanstackTable={table} />
+      <div className="relative flex items-start justify-center bg-white overflow-hidden overflow-y-auto h-screen">
+         <Table tanstackTable={table} tableClass={"w-full"} />
       </div>
    );
 }

@@ -31,10 +31,16 @@ export default function TableReservationUser({
       columnHelper.accessor("table_number", {
          header: "หมายเลขโต๊ะ",
          cell: (info) => info.getValue(),
+         size: 151,
+         minSize: 151,
+         maxSize: 151,
       }),
       columnHelper.accessor("capacity", {
          header: "จำนวนที่นั่ง",
          cell: (info) => info.getValue(),
+         size: 151,
+         minSize: 151,
+         maxSize: 151,
       }),
       columnHelper.accessor("status", {
          header: "สถานะ",
@@ -60,6 +66,9 @@ export default function TableReservationUser({
                </span>
             );
          },
+         size: 101,
+         minSize: 101,
+         maxSize: 101,
       }),
       {
          id: "actions",
@@ -81,9 +90,10 @@ export default function TableReservationUser({
    });
 
    return (
-      <div className="overflow-x-auto">
+      <div className="relative flex items-start justify-center rounded-xl bg-white overflow-hidden overflow-y-auto w-3/4 h-[300px]">
          <Table
             tanstackTable={table}
+            tableClass={"w-full"}
             headerClass={"text-center"}
             bodyClass={"text-center"}
          />

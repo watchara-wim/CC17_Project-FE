@@ -1,29 +1,33 @@
 import React from "react";
 import { Form, Input, Row, Col, Divider, notification } from "antd";
 import Title from "antd/lib/typography/Title";
-import { useAuthen } from "../context/authentication";
 import Button from "./ui/Button";
+import { useAxios } from "../config/axios";
 
 export default function ResetPassword({ setOpenDialog, setAction }) {
-   const { setAccessToken } = useAuthen();
-   const onFinish = (values) => {
+   const axios = useAxios();
+   const [form] = Form.useForm();
+
+   const onSubmit = (values) => {
       const body = {
          email: values.email,
       };
-      // axios
-      //    .post("/users/login", body)
-      //    .then((res) => {
-      //       localStorageService.setToken(res.data.token);
-      //       props.setRole("user");
-      //       notification.success({
-      //          message: "Login success",
-      //       });
-      //    })
-      //    .catch((err) => {
-      //       notification.error({
-      //          message: "Login failed",
-      //       });
-      // });
+      axios
+         .patch("/user/reset-password", body)
+         .then((res) => {
+            notification.success({
+               message: "ส่งคำขอสำเร็จ",
+               description: res.data.message,
+            });
+            setOpenDialog(false);
+            setAction("");
+         })
+         .catch((err) => {
+            notification.error({
+               message: "ส่งคำขอล้มเหลว",
+               description: err?.response?.data?.message,
+            });
+         });
    };
 
    return (
@@ -35,7 +39,7 @@ export default function ResetPassword({ setOpenDialog, setAction }) {
             <Row justify="center" className="mb-6">
                <Title level={2}>ตั้งค่ารหัสผ่านใหม่</Title>
             </Row>
-            <Form onFinish={onFinish} className="w-full">
+            <Form form={form} onFinish={onSubmit} className="w-full">
                <Form.Item
                   label="อีเมล"
                   name="email"

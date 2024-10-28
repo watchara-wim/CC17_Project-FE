@@ -1,31 +1,41 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Form, Input, Row, Col, Divider, notification } from "antd";
 import Title from "antd/lib/typography/Title";
 import { useAuthen } from "../context/authentication";
+import { useAxios } from "../config/axios";
 import Button from "./ui/Button";
+import { set } from "lodash";
 
 export default function Login({ setOpenDialog, setAction }) {
-   const { setAccessToken } = useAuthen();
+   const axios = useAxios();
+   const { accessToken, setAccessToken, role, setRole } = useAuthen();
    const onFinish = (values) => {
       const body = {
          username: values.username,
          password: values.password,
       };
-      // axios
-      //    .post("/users/login", body)
-      //    .then((res) => {
-      //       localStorageService.setToken(res.data.token);
-      //       props.setRole("user");
-      //       notification.success({
-      //          message: "Login success",
-      //       });
-      //    })
-      //    .catch((err) => {
-      //       notification.error({
-      //          message: "Login failed",
-      //       });
-      // });
+      axios
+         .post("/user/login", body)
+         .then((res) => {
+            setAccessToken(res.data.token);
+            setRole(res.data.access);
+            notification.success({
+               message: "Login สำเร็จ",
+               description: res?.response?.data?.message,
+            });
+         })
+         .catch((err) => {
+            notification.error({
+               message: "Login ไม่สำเร็จ",
+               description: err?.response?.data?.message,
+            });
+         });
    };
+
+   useEffect(() => {
+      console.log("accessToken", accessToken);
+      console.log("role", role);
+   }, [accessToken, role]);
 
    return (
       <Row justify="center">
@@ -52,7 +62,7 @@ export default function Login({ setOpenDialog, setAction }) {
 
                <Form.Item
                   label="Password"
-                  name="รหัสผ่าน"
+                  name="password"
                   rules={[
                      {
                         required: true,
@@ -67,7 +77,10 @@ export default function Login({ setOpenDialog, setAction }) {
                   <Button
                      variant="brand"
                      type="submit"
-                     onClick={() => console.log("submit")}
+                     onClick={() => {
+                        setOpenDialog(false);
+                        setAction("");
+                     }}
                   >
                      เข้าสู่ระบบ
                   </Button>
@@ -84,7 +97,7 @@ export default function Login({ setOpenDialog, setAction }) {
                      }, 200);
                      setOpenDialog(false);
                   }}
-                  className={"text-blue-800"}
+                  className={"text-red-500"}
                >
                   ลืมรหัสผ่าน ?
                </Button>

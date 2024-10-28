@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Form, Input, Select, Row, Col, Divider, notification } from "antd";
-import FormReservationCheckBox from "../components/form-reservation";
+import SelectTable from "../components/form-reservation";
 import Clock from "../components/Clock";
 import Button from "../components/ui/Button";
 import TableReservationUser from "../components/Table-reservation-user";
 import dayjs from "dayjs";
+import { useAxios } from "../config/axios";
+import { useAuthen } from "../context/authentication";
 
 const tableList = {
    1: false,
@@ -24,46 +26,100 @@ const tableList = {
 };
 
 export default function Table() {
+   const { role } = useAuthen();
+   const axios = useAxios();
+   const [form] = Form.useForm();
    const [table, setTable] = useState(tableList);
+   const [tablesData, setTablesData] = useState([]);
+   const [selectedTable, setSelectedTable] = useState({});
+   const [addedTable, setAddedTable] = useState([]);
+
+   // useEffect(() => {
+   //    console.log("table", table);
+   //    console.log("tablesData", tablesData);
+   //    console.log("selectedTable", selectedTable);
+   //    console.log("addedTable", addedTable);
+   // }, [table, tablesData, selectedTable, addedTable]);
 
    useEffect(() => {
-      console.log(table);
+      const fetchTables = async () => {
+         try {
+            const response = await axios.get("/table");
+            setTablesData(response.data.tables);
+         } catch (error) {
+            console.log("Error fetching tables data:", error);
+            notification.error({ message: "ไม่สามารถดึงข้อมูลโต๊ะได้" });
+         }
+      };
+
+      fetchTables();
+   }, []);
+
+   useEffect(() => {
+      const selectedTableNumber = Object.keys(table).find((key) => table[key]);
+
+      const selectedData = tablesData?.find(
+         (item) => item.table_number === selectedTableNumber
+      );
+
+      if (selectedData) {
+         setSelectedTable(selectedData);
+      } else {
+         setSelectedTable({});
+      }
    }, [table]);
 
-   const handleCheckboxChange = (e) => {
-      const { name, checked } = e.target;
+   const handleClick = (tableNumber) => {
+      setTable((prevTable) => {
+         const newTable = { ...prevTable };
 
-      setTable((prev) => ({
-         ...prev,
-         [name]: checked,
-      }));
+         newTable[tableNumber] = !newTable[tableNumber];
+
+         if (newTable[tableNumber]) {
+            for (let key in newTable) {
+               if (key !== tableNumber && newTable[key]) {
+                  newTable[key] = false;
+               }
+            }
+         }
+
+         return newTable;
+      });
    };
 
-   const handleSubmit = (e) => {
-      const selectedTables = Object.keys(table).filter((key) => table[key]);
+   const handleDelete = (rowId) => {
+      const newAddedTable = addedTable.filter(
+         (item) => item.table_id !== rowId
+      );
 
-      console.log("Selected Options: ", selectedTables);
+      setAddedTable(newAddedTable);
+   };
+
+   const handleSubmit = (values) => {
+      const tableIds = addedTable.map((table) => table.table_id);
+      const dataToSend = {
+         ...values,
+         table_id: tableIds,
+      };
+
+      console.log("dataToSend", dataToSend);
    };
 
    const generateTimeOptions = () => {
       const options = [];
       const currentTime = dayjs();
-      const minTime = currentTime.add(2, "hour").startOf("minute"); // เวลาที่สามารถเลือกได้ (เพิ่ม 2 ชั่วโมง)
+      const minTime = currentTime.add(2, "hour").startOf("minute");
 
       for (let i = 10; i <= 17; i++) {
          for (let j = 0; j < 60; j += 30) {
             const time = dayjs().hour(i).minute(j).second(0);
             const formattedTime = time.format("HH:mm");
 
-            options.push(
-               <Select.Option
-                  key={formattedTime}
-                  value={formattedTime}
-                  disabled={time.isBefore(minTime)} // ทำให้ตัวเลือก disabled ถ้าน้อยกว่า minTime
-               >
-                  {formattedTime}
-               </Select.Option>
-            );
+            options.push({
+               label: formattedTime,
+               value: formattedTime,
+               // disabled: time.isBefore(minTime),
+            });
          }
       }
       return options;
@@ -71,9 +127,17 @@ export default function Table() {
 
    return (
       <main>
-         <Form onFinish={handleSubmit} className="p-4 flex gap-4">
-            <div id="shop-map" className="w-3/5 bg-blue-500/40">
-               <div id="status" className="flex justify-between hidden">
+         <Form
+            form={form}
+            onFinish={handleSubmit}
+            className="p-4 flex gap-4"
+            disabled={role === "customer"}
+         >
+            <div
+               id="shop-map"
+               className="flex items-center justify-center w-3/5"
+            >
+               {/* <div id="status" className="flex justify-between">
                   <div className="flex gap-4 justify-between items-center rounded-3xl border border-black p-2">
                      <span>จำนวนลูกค้า</span>
                      <div className="rounded-3xl text-center bg-brand-gray py-2 w-16">
@@ -86,18 +150,17 @@ export default function Table() {
                         รับจอง
                      </div>
                   </div>
-               </div>
+               </div> */}
 
-               <FormReservationCheckBox
+               <SelectTable
                   table={table}
-                  handleCheckboxChange={handleCheckboxChange}
+                  tablesData={tablesData}
+                  addedTable={addedTable}
+                  handleClick={handleClick}
                />
             </div>
 
-            <div
-               id="table-detail"
-               className="flex flex-col gap-4 w-2/5 bg-red-500/40"
-            >
+            <div id="table-detail" className="flex flex-col gap-4 w-2/5">
                <Clock />
                <div
                   id="table-detail"
@@ -111,16 +174,30 @@ export default function Table() {
                      className="flex justify-between w-full"
                   >
                      <div className="w-2/5 text-end">หมายเลขโต๊ะ</div>
-                     <div className="w-2/5">{"3"}</div>
+                     <div className="w-2/5">{selectedTable.table_number}</div>
                   </div>
                   <div
                      id="table-capacity"
                      className="flex justify-between w-full"
                   >
                      <div className="w-2/5 text-end">จำนวนผู้นั่งสูงสุด</div>
-                     <div className="w-2/5">{"8"}</div>
+                     <div className="w-2/5">{selectedTable.capacity}</div>
                   </div>
-                  <Button variant={"add"} onClick={() => console.log("เพิ่ม")}>
+                  <Button
+                     variant={"add"}
+                     onClick={() =>
+                        setAddedTable((prev) => [...prev, selectedTable])
+                     }
+                     disabled={
+                        !selectedTable.status ||
+                        selectedTable.status === "reserved" ||
+                        selectedTable.status === "full" ||
+                        role === "customer" ||
+                        addedTable.some(
+                           (item) => item.table_id === selectedTable.table_id
+                        )
+                     }
+                  >
                      เพิ่มรายการ
                   </Button>
                </div>
@@ -132,7 +209,10 @@ export default function Table() {
                   <div className="text-3xl font-semibold text-center">
                      รายละเอียดการจอง
                   </div>
-                  <TableReservationUser />
+                  <TableReservationUser
+                     data={addedTable}
+                     handleDelete={handleDelete}
+                  />
                   <div className="flex justify-between">
                      <div className="w-1/2">
                         <Form.Item
@@ -164,7 +244,6 @@ export default function Table() {
                               {
                                  required: true,
                                  message: "โปรดระบุเวลา",
-                                 whitespace: true,
                               },
                            ]}
                         >
@@ -174,9 +253,15 @@ export default function Table() {
                                  เวลา
                               </div>
                               <div className="w-2/3">
-                                 <Select placeholder="เลือกเวลา">
-                                    {generateTimeOptions()}
-                                 </Select>
+                                 <Select
+                                    placeholder="เลือกเวลา"
+                                    options={generateTimeOptions()}
+                                    onChange={(value) =>
+                                       form.setFieldsValue({
+                                          reservation_time: value,
+                                       })
+                                    }
+                                 />
                               </div>
                            </div>
                         </Form.Item>
@@ -185,7 +270,7 @@ export default function Table() {
                   <Button
                      variant={"confirm"}
                      type="submit"
-                     onClick={() => console.log("จอง")}
+                     disabled={role === "customer"}
                   >
                      จอง
                   </Button>

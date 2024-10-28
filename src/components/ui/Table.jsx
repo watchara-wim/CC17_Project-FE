@@ -7,8 +7,12 @@ export default function Table({
    bodyClass,
 }) {
    return (
-      <table className={`min-w-full bg-white rounded-xl px-4 ${tableClass}`}>
-         <thead className="px-4">
+      <table
+         className={`relative max-w-full bg-white rounded-xl px-4 ${tableClass}`}
+      >
+         <thead
+            className={`sticky top-0 bg-gray-200 rounded-t-xl px-4 ${headerClass}`}
+         >
             {tanstackTable.getHeaderGroups().map((headerGroup) => (
                <tr key={headerGroup.id}>
                   {headerGroup.headers.map((header, index) => (
@@ -16,7 +20,7 @@ export default function Table({
                         key={header.id}
                         className={`${
                            !index ? "pl-4" : ""
-                        } px-2 py-4 border-b text-left ${headerClass}`}
+                        } px-2 py-4 text-left ${headerClass}`}
                      >
                         {header.isPlaceholder
                            ? null

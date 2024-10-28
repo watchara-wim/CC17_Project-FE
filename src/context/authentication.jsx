@@ -7,11 +7,11 @@ export const useAuthen = create(
          accessToken: "",
          setAccessToken: (newaccessToken) =>
             set(() => ({ accessToken: newaccessToken })),
-         removeToken: () => set({ accessToken: "" }),
+         removeAccessToken: () => set({ accessToken: "" }),
 
-         role: "",
+         role: "customer",
          setRole: (newUserRole) => set(() => ({ role: newUserRole })),
-         removeRole: () => set({ role: "" }),
+         removeRole: () => set({ role: "customer" }),
       }),
       {
          name: "authenToken",

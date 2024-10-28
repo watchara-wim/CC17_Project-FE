@@ -3,29 +3,41 @@ import { Form, Input, Row, Col, Divider, notification, DatePicker } from "antd";
 import Title from "antd/lib/typography/Title";
 import Button from "./ui/Button";
 import dayjs from "dayjs";
+import { useAxios } from "../config/axios";
 
 export default function Register({ setOpenDialog, setAction }) {
+   const axios = useAxios();
+   const [form] = Form.useForm();
+
    const onFinish = (values) => {
       const body = {
-         username: values.email,
+         username: values.username,
          password: values.password,
-         name: values.nickname,
+         name: values.name,
+         email: values.email,
+         birth_date: values.birth_date,
+         tel: values.tel,
       };
-      // axios
-      //    .post("/users/register", body)
-      //    .then((res) => {
-      //       notification.success({
-      //          message: `Registration is success`,
-      //          description: res.response.data.message,
-      //       });
-      //       probs.history.push("/login"); // redirect ไปยัง /login เมื่อ register สำเร็จ
-      //    })
-      //    .catch((err) => {
-      //       notification.error({
-      //          message: `Registration is failed`,
-      //          description: err.response.data.message,
-      //       });
-      //    });
+      console.log("body", body);
+      axios
+         .post("/user/register", body)
+         .then((res) => {
+            notification.success({
+               message: `ลงทะเบียนเสร็จสิ้น`,
+               description: res?.response?.data?.message,
+            });
+            setTimeout(() => {
+               setOpenDialog(false);
+               setAction("confirmEmail");
+               setOpenDialog(true);
+            }, 1000);
+         })
+         .catch((err) => {
+            notification.error({
+               message: `ลงทะเบียนล้มเหลว`,
+               description: err?.response?.data?.message,
+            });
+         });
    };
 
    const [phone, setPhone] = useState("");
@@ -67,7 +79,7 @@ export default function Register({ setOpenDialog, setAction }) {
             <Row justify="center" className="mb-6">
                <Title level={2}>สมัครสมาชิก</Title>
             </Row>
-            <Form onFinish={onFinish} className="w-full">
+            <Form form={form} onFinish={onFinish} className="w-full">
                <Form.Item
                   name="username"
                   rules={[
@@ -224,7 +236,7 @@ export default function Register({ setOpenDialog, setAction }) {
                            className="w-full"
                            value={phone}
                            onChange={handleChange}
-                           maxLength={12} // จำกัดความยาวสูงสุดรวมกับ "-" เป็น 13
+                           maxLength={13} // จำกัดความยาวสูงสุดรวมกับ "-" เป็น 13
                            placeholder="เช่น 012-345-6789"
                         />
                      </div>
@@ -250,6 +262,11 @@ export default function Register({ setOpenDialog, setAction }) {
                            disabledDate={disabledDate}
                            format="YYYY-MM-DD"
                            className="w-full"
+                           onChange={(value) =>
+                              form.setFieldsValue({
+                                 birth_date: dayjs(value).format("YYYY-MM-DD"),
+                              })
+                           }
                         />
                      </div>
                   </div>
