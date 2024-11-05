@@ -1,9 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import Layout from "../components/Layout";
-import Home from "../pages/Home";
-import About from "../pages/About";
-import Table from "../pages/Table";
-import Admin from "../pages/Admin";
 import VerifyEmail from "../pages/Verify-email";
 import authConfig from "../config/routes";
 import ResetPassword from "../pages/Reset-password";

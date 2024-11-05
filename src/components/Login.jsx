@@ -19,6 +19,8 @@ export default function Login({ setOpenDialog, setAction }) {
          .then((res) => {
             setAccessToken(res.data.token);
             setRole(res.data.access);
+            setOpenDialog(false);
+            setAction("");
             notification.success({
                message: "Login สำเร็จ",
                description: res?.response?.data?.message,
@@ -74,14 +76,7 @@ export default function Login({ setOpenDialog, setAction }) {
                </Form.Item>
 
                <div className="flex justify-center">
-                  <Button
-                     variant="brand"
-                     type="submit"
-                     onClick={() => {
-                        setOpenDialog(false);
-                        setAction("");
-                     }}
-                  >
+                  <Button variant="brand" type="submit">
                      เข้าสู่ระบบ
                   </Button>
                </div>

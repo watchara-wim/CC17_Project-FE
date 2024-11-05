@@ -13,19 +13,35 @@ export default function SelectTable({
    }, {});
    const addedTableIds = addedTable.map((table) => table.table_id);
 
-   function statusDisplay(tableNumber) {
+   const statusDisplay = (tableNumber) => {
       const status = tableStatus[tableNumber];
       switch (status) {
          case "empty":
             return "ว่าง";
          case "reserved":
             return "จอง";
+         case "onHold":
+            return "จอง";
          case "full":
             return "เต็ม";
          default:
             return "-";
       }
-   }
+   };
+
+   const statusStyle = (tableNumber) => {
+      const status = tableStatus[tableNumber];
+      switch (status) {
+         case "reserved":
+            return "text-brand-crimson";
+         case "onHold":
+            return "text-brand-crimson";
+         case "full":
+            return "text-brand-crimson";
+         default:
+            return "";
+      }
+   };
 
    return (
       <div className="relative flex justify-center">
@@ -44,7 +60,15 @@ export default function SelectTable({
                      handleClick("1");
                   }}
                >
-                  {statusDisplay("1")}
+                  <span
+                     className={
+                        addedTableIds.includes(1)
+                           ? "text-white"
+                           : statusStyle("1")
+                     }
+                  >
+                     {statusDisplay("1")}
+                  </span>
                </Button>
                <Button
                   id="table-2"
@@ -58,7 +82,7 @@ export default function SelectTable({
                      handleClick("2");
                   }}
                >
-                  {statusDisplay("2")}
+                  <span className={statusStyle("2")}>{statusDisplay("2")}</span>
                </Button>
                <Button
                   id="table-3"
@@ -72,7 +96,7 @@ export default function SelectTable({
                      handleClick("3");
                   }}
                >
-                  {statusDisplay("3")}
+                  <span className={statusStyle("3")}>{statusDisplay("3")}</span>
                </Button>
             </div>
             <div className=" translate-y-[35%] flex items-center">
@@ -88,7 +112,7 @@ export default function SelectTable({
                      handleClick("4");
                   }}
                >
-                  {statusDisplay("4")}
+                  <span className={statusStyle("4")}>{statusDisplay("4")}</span>
                </Button>
                <Button
                   id="table-5"
@@ -102,7 +126,7 @@ export default function SelectTable({
                      handleClick("5");
                   }}
                >
-                  {statusDisplay("5")}
+                  <span className={statusStyle("5")}>{statusDisplay("5")}</span>
                </Button>
                <Button
                   id="table-6"
@@ -116,7 +140,7 @@ export default function SelectTable({
                      handleClick("6");
                   }}
                >
-                  {statusDisplay("6")}
+                  <span className={statusStyle("6")}>{statusDisplay("6")}</span>
                </Button>
             </div>
             <div className=" translate-y-[25%] flex items-center">
@@ -132,7 +156,7 @@ export default function SelectTable({
                      handleClick("7");
                   }}
                >
-                  {statusDisplay("7")}
+                  <span className={statusStyle("7")}>{statusDisplay("7")}</span>
                </Button>
                <Button
                   id="table-8"
@@ -146,7 +170,7 @@ export default function SelectTable({
                      handleClick("8");
                   }}
                >
-                  {statusDisplay("8")}
+                  <span className={statusStyle("8")}>{statusDisplay("8")}</span>
                </Button>
             </div>
             <div className=""></div>
@@ -163,7 +187,7 @@ export default function SelectTable({
                      handleClick("9");
                   }}
                >
-                  {statusDisplay("9")}
+                  <span className={statusStyle("9")}>{statusDisplay("9")}</span>
                </Button>
                <Button
                   id="table-10"
@@ -177,7 +201,9 @@ export default function SelectTable({
                      handleClick("10");
                   }}
                >
-                  {statusDisplay("10")}
+                  <span className={statusStyle("10")}>
+                     {statusDisplay("10")}
+                  </span>
                </Button>
                <Button
                   id="table-11"
@@ -191,7 +217,9 @@ export default function SelectTable({
                      handleClick("11");
                   }}
                >
-                  {statusDisplay("11")}
+                  <span className={statusStyle("11")}>
+                     {statusDisplay("11")}
+                  </span>
                </Button>
             </div>
             <div className=" -translate-y-[15%] flex items-center">
@@ -207,7 +235,9 @@ export default function SelectTable({
                      handleClick("12");
                   }}
                >
-                  {statusDisplay("12")}
+                  <span className={statusStyle("12")}>
+                     {statusDisplay("12")}
+                  </span>
                </Button>
                <Button
                   id="table-13"
@@ -221,7 +251,9 @@ export default function SelectTable({
                      handleClick("13");
                   }}
                >
-                  {statusDisplay("13")}
+                  <span className={statusStyle("13")}>
+                     {statusDisplay("13")}
+                  </span>
                </Button>
                <Button
                   id="table-14"
@@ -235,7 +267,9 @@ export default function SelectTable({
                      handleClick("14");
                   }}
                >
-                  {statusDisplay("14")}
+                  <span className={statusStyle("14")}>
+                     {statusDisplay("14")}
+                  </span>
                </Button>
             </div>
          </div>

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { notification } from "antd";
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext } from "react";
 import { useAuthen } from "../context/authentication";
 
 const AxiosContext = createContext();
@@ -31,7 +31,10 @@ export const AxiosProvider = ({ children }) => {
          return res;
       },
       (err) => {
-         if (err.response?.status === 401) {
+         if (
+            err.response?.status === 401 &&
+            !err.config.url.includes("/table")
+         ) {
             removeAccessToken();
             removeRole();
             notification.warning({

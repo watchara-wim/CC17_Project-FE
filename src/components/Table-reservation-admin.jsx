@@ -1,62 +1,73 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
    useReactTable,
    createColumnHelper,
-   ColumnFiltersState,
-   SortingState,
-   VisibilityState,
    getCoreRowModel,
-   getFilteredRowModel,
-   getPaginationRowModel,
-   getSortedRowModel,
 } from "@tanstack/react-table";
 import Button from "./ui/Button";
 import Table from "./ui/Table";
+import { notification } from "antd";
+import { useAxios } from "../config/axios";
 
-const mock = [
-   {
-      reservation_id: 1,
-      customer_id: 10,
-      table_id: [1, 2],
-      capacity: 16,
-      customer_amount: "7",
-      resetvation_time: "17:00",
-      customer_name: "คุณ จอย",
-      customer_tel: "092-222-3367",
-      reservation_status: "pending",
-   },
-   {
-      reservation_id: 2,
-      customer_id: 13,
-      table_id: [11],
-      capacity: 4,
-      customer_amount: "3",
-      resetvation_time: "13:00",
-      customer_name: "คุณ บอย",
-      customer_tel: "092-222-3367",
-      reservation_status: "waiting",
-   },
-   {
-      reservation_id: 3,
-      customer_id: 16,
-      table_id: [15],
-      capacity: 8,
-      customer_amount: "6",
-      resetvation_time: "13.3",
-      customer_name: "คุณ ทอย",
-      customer_tel: "092-222-3367",
-      reservation_status: "cancel",
-   },
-];
+export default function TableReservationAdmin() {
+   const axios = useAxios();
+   const [data, setData] = useState([]);
 
-export default function TableReservationAdmin({
-   data = [],
-   handleEdit = (rowId) => console.log(rowId),
-   handleConfirm = (rowId) => console.log(rowId),
-   handleCancel = (rowId) => console.log(rowId),
-}) {
+   const fetchData = () => {
+      axios
+         .get("/reservation")
+         .then((res) => {
+            setData(res.data?.reservations);
+            console.log(res.data?.reservations);
+         })
+         .catch((err) => {
+            notification.error({
+               message: "การดึงข้อมลล้มเหลว",
+               description: err?.response?.data?.message,
+            });
+         });
+   };
+
+   const handleConfirm = (reservationId) => {
+      const dataToSend = {
+         reservation_status: "accepted",
+         response_at: new Date(),
+      };
+      axios
+         .patch(`/reservation/${reservationId}`, dataToSend)
+         .then(() => fetchData());
+   };
+
+   const handleCheckIn = (reservationId) => {
+      const dataToSend = {
+         reservation_status: "arrive",
+      };
+      axios
+         .patch(`/reservation/${reservationId}`, dataToSend)
+         .then(() => fetchData());
+   };
+
+   const handleFinish = (reservationId) => {
+      const dataToSend = {
+         reservation_status: "finish",
+         finish_at: new Date(),
+      };
+      axios
+         .patch(`/reservation/${reservationId}`, dataToSend)
+         .then(() => fetchData());
+   };
+
+   const handleCancel = (reservationId) => {
+      const dataToSend = {
+         reservation_status: "cancel",
+         finish_at: new Date(),
+      };
+      axios
+         .patch(`/reservation/${reservationId}`, dataToSend)
+         .then(() => fetchData());
+   };
+
    const columnHelper = createColumnHelper();
-
    const columns = [
       columnHelper.accessor("reservation_id", {
          header: "เลขที่การจอง",
@@ -74,28 +85,30 @@ export default function TableReservationAdmin({
          header: "จำนวนลูกค้า",
          cell: (info) => info.getValue(),
       }),
-      columnHelper.accessor("resetvation_time", {
+      columnHelper.accessor("reservation_time", {
          header: "เวลาจอง",
          cell: (info) => info.getValue(),
       }),
-      columnHelper.accessor("customer_name", {
+      columnHelper.accessor("customer_detail.customer_name", {
          header: "ชื่อลูกค้า",
          cell: (info) => info.getValue(),
       }),
-      columnHelper.accessor("customer_tel", {
+      columnHelper.accessor("customer_detail.customer_tel", {
          header: "เบอร์ติดต่อ",
          cell: (info) => info.getValue(),
       }),
       columnHelper.accessor("reservation_status", {
          header: "สถานะ",
-         cell: (info) => {
-            const status = info.getValue();
+         cell: ({ row }) => {
+            const status = row.getValue("reservation_status");
             let display =
                status === "pending"
                   ? "รอดำเนินการ"
-                  : status === "waiting"
+                  : status === "accepted"
                   ? "รอเช็คอิน"
-                  : status === "complete"
+                  : status === "arrive"
+                  ? "เช็นอินแล้ว"
+                  : status === "finish"
                   ? "เสร็จสิ้น"
                   : "ยกเลิก";
             return (
@@ -115,24 +128,75 @@ export default function TableReservationAdmin({
             );
          },
       }),
-      {
-         id: "edit",
-         cell: ({ row }) => (
-            <Button onClick={() => handleEdit(row.original.table_id)}>
-               แก้ไข
-            </Button>
-         ),
-      },
+      // {
+      //    id: "edit",
+      //    cell: ({ row }) => (
+      //       <Button onClick={() => handleEdit(row.original.table_id)}>
+      //          แก้ไข
+      //       </Button>
+      //    ),
+      // },
       {
          id: "actions",
-         cell: ({ row }) => (
-            <Button
-               variant={"confirm"}
-               onClick={() => handleConfirm(row.original.table_id)}
-            >
-               ยืนยัน
-            </Button>
-         ),
+         cell: ({ row }) => {
+            const isDisabled =
+               row.getValue("reservation_status") === "finish" ||
+               row.getValue("reservation_status") === "cancel";
+            switch (row.getValue("reservation_status")) {
+               case "pending":
+                  return (
+                     <Button
+                        variant={"confirm"}
+                        className="w-[150px]"
+                        onClick={() =>
+                           handleConfirm(row.getValue("reservation_id"))
+                        }
+                        disabled={isDisabled}
+                     >
+                        ยืนยัน
+                     </Button>
+                  );
+               case "accepted":
+                  return (
+                     <Button
+                        variant={"confirm"}
+                        className="w-[150px]"
+                        onClick={() =>
+                           handleCheckIn(row.getValue("reservation_id"))
+                        }
+                        disabled={isDisabled}
+                     >
+                        Check in
+                     </Button>
+                  );
+               case "arrive":
+                  return (
+                     <Button
+                        variant={"confirm"}
+                        className="w-[150px]"
+                        onClick={() =>
+                           handleFinish(row.getValue("reservation_id"))
+                        }
+                        disabled={isDisabled}
+                     >
+                        เสร็จสิ้น
+                     </Button>
+                  );
+               default:
+                  return (
+                     <Button
+                        variant={"confirm"}
+                        className="w-[150px]"
+                        onClick={() =>
+                           handleConfirm(row.getValue("reservation_id"))
+                        }
+                        disabled={isDisabled}
+                     >
+                        ยืนยัน
+                     </Button>
+                  );
+            }
+         },
       },
       {
          id: "cancel",
@@ -140,12 +204,20 @@ export default function TableReservationAdmin({
             <Button
                variant={"cancel"}
                onClick={() => handleCancel(row.original.table_id)}
+               disabled={
+                  row.getValue("reservation_status") === "finish" ||
+                  row.getValue("reservation_status") === "cancel"
+               }
             >
                ยกเลิก
             </Button>
          ),
       },
    ];
+
+   useEffect(() => {
+      fetchData();
+   }, []);
 
    const table = useReactTable({
       columns,

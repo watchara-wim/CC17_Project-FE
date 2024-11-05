@@ -2,27 +2,22 @@ import React from "react";
 import {
    useReactTable,
    createColumnHelper,
-   ColumnFiltersState,
-   SortingState,
-   VisibilityState,
    getCoreRowModel,
-   getFilteredRowModel,
-   getPaginationRowModel,
-   getSortedRowModel,
 } from "@tanstack/react-table";
 import Button from "./ui/Button";
 import Table from "./ui/Table";
 
-const mock = [
-   { table_id: 1, table_number: "1", capacity: 8, status: "full" },
-   { table_id: 2, table_number: "2", capacity: 8, status: "empty" },
-   { table_id: 3, table_number: "3", capacity: 8, status: "empty" },
-   { table_id: 4, table_number: "4", capacity: 4, status: "reserved" },
-   { table_id: 5, table_number: "5", capacity: 4, status: "empty" },
-];
+// const mock = [
+//    { table_id: 1, table_number: "1", capacity: 8, status: "full" },
+//    { table_id: 2, table_number: "2", capacity: 8, status: "empty" },
+//    { table_id: 3, table_number: "3", capacity: 8, status: "empty" },
+//    { table_id: 4, table_number: "4", capacity: 4, status: "reserved" },
+//    { table_id: 5, table_number: "5", capacity: 4, status: "empty" },
+// ];
 
 export default function TableReservationUser({
-   data = mock,
+   data = [],
+   hasReservation = false,
    handleDelete = (rowId) => console.log(rowId),
 }) {
    const columnHelper = createColumnHelper();
@@ -51,13 +46,17 @@ export default function TableReservationUser({
                   ? "เต็ม"
                   : status === "reserved"
                   ? "ถูกจอง"
+                  : status === "onHold"
+                  ? "ถูกจอง"
                   : status === "empty"
                   ? "ว่าง"
                   : "";
             return (
                <span
                   className={`${
-                     status === "reserved" || status === "full"
+                     status === "reserved" ||
+                     status === "full" ||
+                     status === "onHold"
                         ? "text-red-500"
                         : "text-green-500"
                   }`}
@@ -76,6 +75,7 @@ export default function TableReservationUser({
             <Button
                variant={"cancel"}
                onClick={() => handleDelete(row.original.table_id)}
+               disabled={hasReservation}
             >
                Delete
             </Button>

@@ -26,34 +26,63 @@ const tableList = {
 };
 
 export default function Table() {
-   const { role } = useAuthen();
+   const { role, accessToken } = useAuthen();
    const axios = useAxios();
    const [form] = Form.useForm();
    const [table, setTable] = useState(tableList);
    const [tablesData, setTablesData] = useState([]);
+   const [reservation, setReservation] = useState({});
    const [selectedTable, setSelectedTable] = useState({});
    const [addedTable, setAddedTable] = useState([]);
 
-   // useEffect(() => {
-   //    console.log("table", table);
-   //    console.log("tablesData", tablesData);
-   //    console.log("selectedTable", selectedTable);
-   //    console.log("addedTable", addedTable);
-   // }, [table, tablesData, selectedTable, addedTable]);
+   useEffect(() => {
+      if (reservation.table_id) {
+         setAddedTable(
+            tablesData.filter((table) =>
+               reservation.table_id.includes(table.table_id)
+            )
+         );
+      }
+   }, [reservation]);
+
+   const fetchTables = async () => {
+      try {
+         const response = await axios.get("/table");
+         setTablesData(response.data.tables);
+      } catch (error) {
+         console.log("Error fetching tables data:", error);
+         notification.error({ message: "ไม่สามารถดึงข้อมูลโต๊ะได้" });
+      }
+   };
+
+   const fetchReservation = async () => {
+      try {
+         const response = await axios.get("/reservation/user");
+         setReservation(response.data.reservation);
+      } catch (error) {
+         console.log(error.response?.data?.message);
+      }
+   };
+
+   if (reservation.table_id) {
+   }
 
    useEffect(() => {
-      const fetchTables = async () => {
-         try {
-            const response = await axios.get("/table");
-            setTablesData(response.data.tables);
-         } catch (error) {
-            console.log("Error fetching tables data:", error);
-            notification.error({ message: "ไม่สามารถดึงข้อมูลโต๊ะได้" });
-         }
-      };
-
       fetchTables();
+      if (accessToken) fetchReservation();
    }, []);
+
+   useEffect(() => {
+      console.log("reservation", reservation);
+   }, [reservation]);
+
+   useEffect(() => {
+      console.log("addedTable", addedTable);
+   }, [addedTable]);
+
+   useEffect(() => {
+      console.log("tablesData", tablesData);
+   }, [tablesData]);
 
    useEffect(() => {
       const selectedTableNumber = Object.keys(table).find((key) => table[key]);
@@ -96,13 +125,33 @@ export default function Table() {
    };
 
    const handleSubmit = (values) => {
-      const tableIds = addedTable.map((table) => table.table_id);
+      const table_id = addedTable.map((table) => table.table_id);
+      const capacity = addedTable.reduce(
+         (total, item) => total + item.capacity,
+         0
+      );
       const dataToSend = {
          ...values,
-         table_id: tableIds,
+         table_id,
+         capacity,
       };
 
-      console.log("dataToSend", dataToSend);
+      axios
+         .post("/reservation", dataToSend)
+         .then((res) => {
+            notification.success({
+               message: "จองสำเร็จ",
+               description: res?.response?.data?.message,
+            });
+            fetchTables();
+            fetchReservation();
+         })
+         .catch((err) => {
+            notification.error({
+               message: "การจองล้มเหลว",
+               description: err?.response?.data?.message,
+            });
+         });
    };
 
    const generateTimeOptions = () => {
@@ -125,13 +174,26 @@ export default function Table() {
       return options;
    };
 
+   const getButtonDisPlay = () => {
+      switch (reservation.reservation_status) {
+         case "pending":
+            return "กำลังดำเนินการ";
+         case "accept":
+            return "การจองสำเร็จ";
+         case "arrive":
+            return "Checked in !";
+         default:
+            return "ยืนยันการจอง";
+      }
+   };
+
    return (
       <main>
          <Form
             form={form}
             onFinish={handleSubmit}
             className="p-4 flex gap-4"
-            disabled={role === "customer"}
+            disabled={role === "customer" || reservation.reservation_id}
          >
             <div
                id="shop-map"
@@ -192,6 +254,7 @@ export default function Table() {
                         !selectedTable.status ||
                         selectedTable.status === "reserved" ||
                         selectedTable.status === "full" ||
+                        reservation.reservation_id ||
                         role === "customer" ||
                         addedTable.some(
                            (item) => item.table_id === selectedTable.table_id
@@ -211,6 +274,7 @@ export default function Table() {
                   </div>
                   <TableReservationUser
                      data={addedTable}
+                     hasReservation={reservation.reservation_id}
                      handleDelete={handleDelete}
                   />
                   <div className="flex justify-between">
@@ -270,9 +334,11 @@ export default function Table() {
                   <Button
                      variant={"confirm"}
                      type="submit"
-                     disabled={role === "customer"}
+                     disabled={
+                        role === "customer" || reservation.reservation_id
+                     }
                   >
-                     จอง
+                     {getButtonDisPlay()}
                   </Button>
                </div>
             </div>
