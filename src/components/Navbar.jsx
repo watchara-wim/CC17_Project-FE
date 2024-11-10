@@ -13,48 +13,33 @@ const memberLinkItems = [
    { key: "login", action: "login", title: "เข้าสู่ระบบ" },
 ];
 
-export default function NavUser({ setOpenDialog, setAction }) {
-   const { role, removeRole, removeAccessToken } = useAuthen();
+export default function NavUser({ setIsModalOpen, setAction }) {
+   const { role } = useAuthen();
    const location = useLocation();
    const pathname = location.pathname;
    const navigate = useNavigate();
-   const admin = process.env.REACT_APP_ROLE_ADMIN;
    const member = process.env.REACT_APP_ROLE_MEMBER;
-
-   const handleLogout = () => {
-      window.location.reload();
-      removeRole();
-      removeAccessToken();
-   };
 
    return (
       <nav
-         className={`sticky top-0 flex ${
-            role === admin
-               ? "justify-end bg-brand-darkgray"
-               : "justify-between bg-white"
-         } w-full py-2 px-6 border-b-2 z-50`}
+         className={`sticky top-0 flex justify-between bg-white w-full py-2 px-6 border-b-2 z-50`}
       >
-         {role === admin ? (
-            <Button onClick={handleLogout}>ออกจากระบบ</Button>
-         ) : (
-            <div className="flex gap-12 items-center">
-               <Link to="/">
-                  <img src="/logo.png" alt="logo" className="h-16" />
-               </Link>
-               {pageLinkItems.map((item) => (
-                  <Button
-                     key={item.key}
-                     variant={"link"}
-                     onClick={() => navigate(item.href)}
-                     disabled={pathname === item.href}
-                     className={item.href === "/about" ? "hidden" : ""}
-                  >
-                     {item.title}
-                  </Button>
-               ))}
-            </div>
-         )}
+         <div className="flex gap-12 items-center">
+            <Link to="/">
+               <img src="/logo.png" alt="logo" className="h-16" />
+            </Link>
+            {pageLinkItems.map((item) => (
+               <Button
+                  key={item.key}
+                  variant={"link"}
+                  onClick={() => navigate(item.href)}
+                  disabled={pathname === item.href}
+                  className={item.href === "/about" ? "hidden" : ""}
+               >
+                  {item.title}
+               </Button>
+            ))}
+         </div>
 
          <div className="flex gap-4 items-center">
             {role === "customer" &&
@@ -63,7 +48,7 @@ export default function NavUser({ setOpenDialog, setAction }) {
                      key={item.key}
                      variant={item.key === "register" ? "brand" : "default"}
                      onClick={() => {
-                        setOpenDialog(true);
+                        setIsModalOpen(true);
                         setAction(item.action);
                      }}
                   >
@@ -73,7 +58,7 @@ export default function NavUser({ setOpenDialog, setAction }) {
             {role === member && (
                <Button
                   onClick={() => {
-                     setOpenDialog(true);
+                     setIsModalOpen(true);
                      setAction("profile");
                   }}
                >

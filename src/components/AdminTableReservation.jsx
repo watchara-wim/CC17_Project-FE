@@ -9,7 +9,7 @@ import Table from "./ui/Table";
 import { notification } from "antd";
 import { useAxios } from "../config/axios";
 
-export default function TableReservationAdmin() {
+export default function AdminTableReservation() {
    const axios = useAxios();
    const [data, setData] = useState([]);
 
@@ -17,7 +17,7 @@ export default function TableReservationAdmin() {
       axios
          .get("/reservation")
          .then((res) => {
-            setData(res.data?.reservations);
+            setData(res.data?.reservations ?? []);
             console.log(res.data?.reservations);
          })
          .catch((err) => {
@@ -41,21 +41,22 @@ export default function TableReservationAdmin() {
    const handleCheckIn = (reservationId) => {
       const dataToSend = {
          reservation_status: "arrive",
-      };
-      axios
-         .patch(`/reservation/${reservationId}`, dataToSend)
-         .then(() => fetchData());
-   };
-
-   const handleFinish = (reservationId) => {
-      const dataToSend = {
-         reservation_status: "finish",
          finish_at: new Date(),
       };
       axios
          .patch(`/reservation/${reservationId}`, dataToSend)
          .then(() => fetchData());
    };
+
+   // const handleFinish = (reservationId) => {
+   //    const dataToSend = {
+   //       reservation_status: "finish",
+   //       finish_at: new Date(),
+   //    };
+   //    axios
+   //       .patch(`/reservation/${reservationId}`, dataToSend)
+   //       .then(() => fetchData());
+   // };
 
    const handleCancel = (reservationId) => {
       const dataToSend = {
@@ -75,7 +76,7 @@ export default function TableReservationAdmin() {
       }),
       columnHelper.accessor("table_id", {
          header: "หมายเลขโต๊ะ",
-         cell: (info) => info.getValue(),
+         cell: (info) => info.getValue().join(", "),
       }),
       columnHelper.accessor("capacity", {
          header: "จำนวนที่นั่ง",
@@ -107,10 +108,10 @@ export default function TableReservationAdmin() {
                   : status === "accepted"
                   ? "รอเช็คอิน"
                   : status === "arrive"
-                  ? "เช็นอินแล้ว"
+                  ? "เช็คอินแล้ว"
                   : status === "finish"
                   ? "เสร็จสิ้น"
-                  : "ยกเลิก";
+                  : "ยกเลิกคำขอ";
             return (
                <span
                   className={`${
@@ -140,7 +141,7 @@ export default function TableReservationAdmin() {
          id: "actions",
          cell: ({ row }) => {
             const isDisabled =
-               row.getValue("reservation_status") === "finish" ||
+               row.getValue("reservation_status") === "arrive" ||
                row.getValue("reservation_status") === "cancel";
             switch (row.getValue("reservation_status")) {
                case "pending":
@@ -174,9 +175,6 @@ export default function TableReservationAdmin() {
                      <Button
                         variant={"confirm"}
                         className="w-[150px]"
-                        onClick={() =>
-                           handleFinish(row.getValue("reservation_id"))
-                        }
                         disabled={isDisabled}
                      >
                         เสร็จสิ้น
@@ -205,7 +203,7 @@ export default function TableReservationAdmin() {
                variant={"cancel"}
                onClick={() => handleCancel(row.original.table_id)}
                disabled={
-                  row.getValue("reservation_status") === "finish" ||
+                  row.getValue("reservation_status") === "arrive" ||
                   row.getValue("reservation_status") === "cancel"
                }
             >
@@ -221,7 +219,7 @@ export default function TableReservationAdmin() {
 
    const table = useReactTable({
       columns,
-      data,
+      data: data || [],
       getCoreRowModel: getCoreRowModel(),
    });
 

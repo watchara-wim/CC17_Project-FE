@@ -5,7 +5,7 @@ import Button from "./ui/Button";
 import dayjs from "dayjs";
 import { useAxios } from "../config/axios";
 
-export default function Register({ setOpenDialog, setAction }) {
+export default function ModalRegister({ setIsModalOpen, setAction }) {
    const axios = useAxios();
    const [form] = Form.useForm();
 
@@ -27,9 +27,9 @@ export default function Register({ setOpenDialog, setAction }) {
                description: res?.response?.data?.message,
             });
             setTimeout(() => {
-               setOpenDialog(false);
+               setIsModalOpen(false);
                setAction("confirmEmail");
-               setOpenDialog(true);
+               setIsModalOpen(true);
             }, 1000);
          })
          .catch((err) => {
@@ -286,10 +286,10 @@ export default function Register({ setOpenDialog, setAction }) {
                   variant={"link"}
                   onClick={() => {
                      setTimeout(() => {
-                        setOpenDialog(true);
+                        setIsModalOpen(true);
                         setAction("login");
                      }, 200);
-                     setOpenDialog(false);
+                     setIsModalOpen(false);
                   }}
                   className={"text-blue-800"}
                >

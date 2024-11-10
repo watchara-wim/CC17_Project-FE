@@ -16,7 +16,7 @@ dayjs.updateLocale("th", {
    formats: { LT: "H:mm น." },
 });
 
-export default function Profile({ setOpenDialog, setAction }) {
+export default function ModalProfile({ setIsModalOpen, setAction }) {
    const axios = useAxios();
    const [form] = Form.useForm();
    const { removeAccessToken, removeRole } = useAuthen();
@@ -102,7 +102,7 @@ export default function Profile({ setOpenDialog, setAction }) {
    const handleLogout = () => {
       removeRole();
       removeAccessToken();
-      setOpenDialog(false);
+      setIsModalOpen(false);
       setAction("");
       window.location.reload();
    };

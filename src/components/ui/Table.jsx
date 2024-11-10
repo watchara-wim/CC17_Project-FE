@@ -5,6 +5,7 @@ export default function Table({
    tableClass,
    headerClass,
    bodyClass,
+   rowProps = () => ({}),
 }) {
    return (
       <table
@@ -32,7 +33,11 @@ export default function Table({
          </thead>
          <tbody className="px-4">
             {tanstackTable.getRowModel().rows.map((row) => (
-               <tr key={row.id} className="hover:bg-gray-100">
+               <tr
+                  key={row.id}
+                  className={`hover:bg-gray-50 ${rowProps(row).className}`}
+                  {...rowProps(row)}
+               >
                   {row.getVisibleCells().map((cell, index) => (
                      <td
                         key={cell.id}

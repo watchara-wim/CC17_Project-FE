@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Form, Input, Row, Col, Divider, notification } from "antd";
-import Title from "antd/lib/typography/Title";
+import React from "react";
+import { Form, Input, Row, Col, notification } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAxios } from "../config/axios";
 import Button from "../components/ui/Button";
@@ -10,9 +9,6 @@ export default function ResetPassword() {
    const [form] = Form.useForm();
    const { token } = useParams();
    const navigate = useNavigate();
-   const [message, setMessage] = useState("");
-   const [messageStyle, setMessageStyle] = useState("");
-   const [isError, setIsError] = useState(false);
 
    const handleSubmit = (value) => {
       const body = {

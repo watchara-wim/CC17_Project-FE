@@ -4,9 +4,8 @@ import Title from "antd/lib/typography/Title";
 import { useAuthen } from "../context/authentication";
 import { useAxios } from "../config/axios";
 import Button from "./ui/Button";
-import { set } from "lodash";
 
-export default function Login({ setOpenDialog, setAction }) {
+export default function ModalLogin({ setIsModalOpen, setAction }) {
    const axios = useAxios();
    const { accessToken, setAccessToken, role, setRole } = useAuthen();
    const onFinish = (values) => {
@@ -19,7 +18,7 @@ export default function Login({ setOpenDialog, setAction }) {
          .then((res) => {
             setAccessToken(res.data.token);
             setRole(res.data.access);
-            setOpenDialog(false);
+            setIsModalOpen(false);
             setAction("");
             notification.success({
                message: "Login สำเร็จ",
@@ -87,10 +86,10 @@ export default function Login({ setOpenDialog, setAction }) {
                   variant={"link"}
                   onClick={() => {
                      setTimeout(() => {
-                        setOpenDialog(true);
+                        setIsModalOpen(true);
                         setAction("resetPass");
                      }, 200);
-                     setOpenDialog(false);
+                     setIsModalOpen(false);
                   }}
                   className={"text-red-500"}
                >
@@ -101,10 +100,10 @@ export default function Login({ setOpenDialog, setAction }) {
                   variant={"link"}
                   onClick={() => {
                      setTimeout(() => {
-                        setOpenDialog(true);
+                        setIsModalOpen(true);
                         setAction("reg");
                      }, 200);
-                     setOpenDialog(false);
+                     setIsModalOpen(false);
                   }}
                   className={"text-blue-800"}
                >

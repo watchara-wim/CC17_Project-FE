@@ -9,6 +9,8 @@ const buttonVariants = cva(
          variant: {
             default: "bg-brand-gray hover:bg-brand-darkgray hover:text-white",
             link: "no-underline border-0 hover:bg-brand-gray hover:text-black disabled:bg-brand-gray",
+            adminLink:
+               "no-underline border border-brand-darkgray hover:bg-brand-darkgray hover:text-white disabled:bg-brand-darkgray disabled:text-white disabled:border-none disabled:opacity-75",
             brand: "bg-brand-pinegreen text-white border-0 hover:bg-brand-teal hover:scale-110 transition-transform duration-200",
             white: "bg-white border hover:bg-brand-gray",
             select: "bg-brand-green text-white border-0",

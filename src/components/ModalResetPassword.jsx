@@ -1,10 +1,10 @@
 import React from "react";
-import { Form, Input, Row, Col, Divider, notification } from "antd";
+import { Form, Input, Row, Col, notification } from "antd";
 import Title from "antd/lib/typography/Title";
 import Button from "./ui/Button";
 import { useAxios } from "../config/axios";
 
-export default function ResetPassword({ setOpenDialog, setAction }) {
+export default function ModalResetPassword({ setIsModalOpen, setAction }) {
    const axios = useAxios();
    const [form] = Form.useForm();
 
@@ -19,7 +19,7 @@ export default function ResetPassword({ setOpenDialog, setAction }) {
                message: "ส่งคำขอสำเร็จ",
                description: res.data.message,
             });
-            setOpenDialog(false);
+            setIsModalOpen(false);
             setAction("");
          })
          .catch((err) => {

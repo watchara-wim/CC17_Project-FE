@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Form, Input, Select, Row, Col, Divider, notification } from "antd";
-import SelectTable from "../components/form-reservation";
+import { Form, Input, Select, notification } from "antd";
+import FormSelectTable from "../components/FormSelectTable";
 import Clock from "../components/Clock";
 import Button from "../components/ui/Button";
-import TableReservationUser from "../components/Table-reservation-user";
+import UserTableReservation from "../components/UserTableReservation";
 import dayjs from "dayjs";
 import { useAxios } from "../config/axios";
 import { useAuthen } from "../context/authentication";
@@ -48,7 +48,7 @@ export default function Table() {
    const fetchTables = async () => {
       try {
          const response = await axios.get("/table");
-         setTablesData(response.data.tables);
+         setTablesData(response.data.tables ?? []);
       } catch (error) {
          console.log("Error fetching tables data:", error);
          notification.error({ message: "ไม่สามารถดึงข้อมูลโต๊ะได้" });
@@ -58,14 +58,14 @@ export default function Table() {
    const fetchReservation = async () => {
       try {
          const response = await axios.get("/reservation/user");
-         setReservation(response.data.reservation);
+         setReservation(response.data.reservation ?? []);
       } catch (error) {
          console.log(error.response?.data?.message);
       }
    };
 
-   if (reservation.table_id) {
-   }
+   // if (reservation.table_id) {
+   // }
 
    useEffect(() => {
       fetchTables();
@@ -156,8 +156,8 @@ export default function Table() {
 
    const generateTimeOptions = () => {
       const options = [];
-      const currentTime = dayjs();
-      const minTime = currentTime.add(2, "hour").startOf("minute");
+      // const currentTime = dayjs();
+      // const minTime = currentTime.add(2, "hour").startOf("minute");
 
       for (let i = 10; i <= 17; i++) {
          for (let j = 0; j < 60; j += 30) {
@@ -214,7 +214,7 @@ export default function Table() {
                   </div>
                </div> */}
 
-               <SelectTable
+               <FormSelectTable
                   table={table}
                   tablesData={tablesData}
                   addedTable={addedTable}
@@ -272,7 +272,7 @@ export default function Table() {
                   <div className="text-3xl font-semibold text-center">
                      รายละเอียดการจอง
                   </div>
-                  <TableReservationUser
+                  <UserTableReservation
                      data={addedTable}
                      hasReservation={reservation.reservation_id}
                      handleDelete={handleDelete}

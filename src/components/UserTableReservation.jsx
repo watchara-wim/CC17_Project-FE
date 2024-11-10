@@ -7,15 +7,7 @@ import {
 import Button from "./ui/Button";
 import Table from "./ui/Table";
 
-// const mock = [
-//    { table_id: 1, table_number: "1", capacity: 8, status: "full" },
-//    { table_id: 2, table_number: "2", capacity: 8, status: "empty" },
-//    { table_id: 3, table_number: "3", capacity: 8, status: "empty" },
-//    { table_id: 4, table_number: "4", capacity: 4, status: "reserved" },
-//    { table_id: 5, table_number: "5", capacity: 4, status: "empty" },
-// ];
-
-export default function TableReservationUser({
+export default function UserTableReservation({
    data = [],
    hasReservation = false,
    handleDelete = (rowId) => console.log(rowId),
@@ -85,7 +77,7 @@ export default function TableReservationUser({
 
    const table = useReactTable({
       columns,
-      data,
+      data: data || [],
       getCoreRowModel: getCoreRowModel(),
    });
 

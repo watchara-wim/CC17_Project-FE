@@ -1,28 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
-import NavUser from "./Navbar-user";
+import NavUser from "./Navbar";
 import { Facebook, Instagram, Twitter } from "lucide-react";
-import Login from "./Login";
+import ModalLogin from "./ModalLogin";
 import { Modal } from "antd";
-import Register from "./Register";
-import ResetPassword from "./ResetPassword";
+import ModalRegister from "./ModalRegister";
+import ModalResetPassword from "./ModalResetPassword";
 import { Row, Col } from "antd";
 import Title from "antd/lib/typography/Title";
 import Button from "./ui/Button";
-import Profile from "./Profile";
-import { useAuthen } from "../context/authentication";
+import ModalProfile from "./ModalProfile";
 
-export default function Layout() {
-   const { role } = useAuthen();
-   const [openDialog, setOpenDialog] = useState(false);
+export default function UserLayout() {
+   const [isModalOpen, setIsModalOpen] = useState(false);
    const [action, setAction] = useState("");
-
-   const admin = process.env.REACT_APP_ROLE_ADMIN;
 
    useEffect(() => {
       if (action === "confirmEmail") {
          setTimeout(() => {
-            setOpenDialog(false);
+            setIsModalOpen(false);
             setAction("");
          }, 8000);
       }
@@ -30,33 +26,35 @@ export default function Layout() {
 
    return (
       <div>
-         <NavUser setAction={setAction} setOpenDialog={setOpenDialog} />
-
+         <NavUser setAction={setAction} setIsModalOpen={setIsModalOpen} />
          <main className="pb-12">
             <Outlet />
             <Modal
-               open={openDialog}
+               open={isModalOpen}
                // onOk={handleOk}
                // confirmLoading={confirmLoading}
                footer={null}
                onCancel={() => {
-                  setOpenDialog(false);
+                  setIsModalOpen(false);
                   setAction("");
                }}
             >
                {action === "login" && (
-                  <Login setAction={setAction} setOpenDialog={setOpenDialog} />
+                  <ModalLogin
+                     setAction={setAction}
+                     setIsModalOpen={setIsModalOpen}
+                  />
                )}
                {action === "reg" && (
-                  <Register
+                  <ModalRegister
                      setAction={setAction}
-                     setOpenDialog={setOpenDialog}
+                     setIsModalOpen={setIsModalOpen}
                   />
                )}
                {action === "resetPass" && (
-                  <ResetPassword
+                  <ModalResetPassword
                      setAction={setAction}
-                     setOpenDialog={setOpenDialog}
+                     setIsModalOpen={setIsModalOpen}
                   />
                )}
                {action === "confirmEmail" && (
@@ -72,7 +70,7 @@ export default function Layout() {
                         <div className="flex justify-center">
                            <Button
                               onClick={() => {
-                                 setOpenDialog(false);
+                                 setIsModalOpen(false);
                                  setAction("");
                               }}
                            >
@@ -83,36 +81,34 @@ export default function Layout() {
                   </Row>
                )}
                {action === "profile" && (
-                  <Profile
+                  <ModalProfile
                      setAction={setAction}
-                     setOpenDialog={setOpenDialog}
+                     setIsModalOpen={setIsModalOpen}
                   />
                )}
             </Modal>
          </main>
 
-         {role !== admin && (
-            <footer className="bg-black text-white w-full fixed bottom-0 p-2 flex justify-center gap-4">
-               <a
-                  href="#"
-                  className="rounded-lg p-1 hover:bg-brand-gray hover:text-brand-darkgray hover:scale-110 active:scale-125 transition-transform duration-200"
-               >
-                  <Facebook />
-               </a>
-               <a
-                  href="#"
-                  className="rounded-lg p-1 hover:bg-brand-gray hover:text-brand-darkgray hover:scale-110 active:scale-125 transition-transform duration-200"
-               >
-                  <Instagram />
-               </a>
-               <a
-                  href="#"
-                  className="rounded-lg p-1 hover:bg-brand-gray hover:text-brand-darkgray hover:scale-110 active:scale-125 transition-transform duration-200"
-               >
-                  <Twitter />
-               </a>
-            </footer>
-         )}
+         <footer className="bg-black text-white w-full fixed bottom-0 p-2 flex justify-center gap-4">
+            <a
+               href="#"
+               className="rounded-lg p-1 hover:bg-brand-gray hover:text-brand-darkgray hover:scale-110 active:scale-125 transition-transform duration-200"
+            >
+               <Facebook />
+            </a>
+            <a
+               href="#"
+               className="rounded-lg p-1 hover:bg-brand-gray hover:text-brand-darkgray hover:scale-110 active:scale-125 transition-transform duration-200"
+            >
+               <Instagram />
+            </a>
+            <a
+               href="#"
+               className="rounded-lg p-1 hover:bg-brand-gray hover:text-brand-darkgray hover:scale-110 active:scale-125 transition-transform duration-200"
+            >
+               <Twitter />
+            </a>
+         </footer>
       </div>
    );
 }

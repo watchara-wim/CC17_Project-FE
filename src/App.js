@@ -1,9 +1,9 @@
+import React from "react";
 import "./App.css";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-
-import PrivateRoute from "./components/Private-route";
+import { BrowserRouter } from "react-router-dom";
 import { AxiosProvider } from "./config/axios";
 import { useAuthen } from "./context/authentication";
+import PrivateRoute from "./components/PrivateRoute";
 
 function App() {
    const { role } = useAuthen();

@@ -1,4 +1,5 @@
-import Admin from "../pages/Admin";
+import AdminOrder from "../pages/AdminOrder";
+import AdminReservation from "../pages/AdminReservation";
 import Home from "../pages/Home";
 import Table from "../pages/Table";
 
@@ -11,9 +12,13 @@ const components = {
       url: "/table",
       component: Table,
    },
-   admin: {
-      url: "/",
-      component: Admin,
+   adminOrder: {
+      url: "order",
+      component: AdminOrder,
+   },
+   adminReservation: {
+      url: "reservation",
+      component: AdminReservation,
    },
 };
 
@@ -30,7 +35,7 @@ export default {
       redirectRoutes: "/",
    },
    [ROLE_ADMIN]: {
-      allowedRoutes: [components.admin],
-      redirectRoutes: "/",
+      allowedRoutes: [components.adminOrder, components.adminReservation],
+      redirectRoutes: "/admin/order",
    },
 };
